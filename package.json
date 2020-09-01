@@ -1,0 +1,23 @@
+{
+  "name": "redeememer-blog",
+  "version": "1.0.0",
+  "description": "docs",
+  "author": "shiyajun",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "docs:build": "vuepress build docs",
+    "dev": "vuepress dev docs"
+  },
+  "homepage": "https://redeememer.com",
+  "devDependencies": {
+    "@vuepress/plugin-google-analytics": "^1.4.0",
+    "vuepress": "^1.4.0"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "lodash": "^4.17.15",
+    "vue-script2": "^2.1.0",
+    "vuex": "^3.1.3"
+  }
+}
