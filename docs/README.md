@@ -1,7 +1,7 @@
 ---
 home: true
 heroImage: /images/nya-n.png
-actionText: 开始探索 →
+actionText: 随便看看 →
 actionLink: /guide/
 features:
 - title: どんな本？
