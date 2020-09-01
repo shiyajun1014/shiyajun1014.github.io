@@ -7,12 +7,14 @@
   "main": "index.js",
   "scripts": {
     "docs:build": "vuepress build docs",
-    "dev": "vuepress dev docs"
+    "dev": "nodemon --ext md,vue --watch .vuepress --watch . --exec vuepress dev docs"
   },
   "homepage": "https://redeememer.com",
   "devDependencies": {
     "@vuepress/plugin-google-analytics": "^1.4.0",
-    "vuepress": "^1.4.0"
+    "nodemon": "^2.0.4",
+    "vuepress": "^1.4.0",
+    "watchpack": "^1.6.1"
   },
   "dependencies": {
     "axios": "^0.19.2",

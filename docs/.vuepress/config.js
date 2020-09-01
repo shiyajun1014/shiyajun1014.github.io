@@ -6,7 +6,7 @@ module.exports = {
     '/': {
       lang: 'zh-CN',
       title: '个人博客',
-      description: '我的精神角落'
+      description: '站在人文与科技的十字路口'
     }
   },
   head: [
