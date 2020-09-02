@@ -1,237 +1,144 @@
 ---
 sidebarDepth: 2
-title: CHAPTER 1
+title: Vue 使用 token 身份验证
 ---
 
-# CH1 Vue.js とフレームワークの基礎知識
+# Vue 使用 token 身份验证
 
-## S04 インストール
-
-<page-info page="36"></page-info>
-
-CHAPTER6 まではスクリプトタグで読み込むだけの、**スタンドアロン版** の Vue.js を使用します。
-Lodash（ユーティリティ用ライブラリ） と axios（HTTP 通信用ライブラリ） も使用することがあるため、あらかじめ読み込んでおいても問題ありません。
-
-- [Lodash ドキュメント](https://lodash.com/)
-- [axios ドキュメント GitHub](https://github.com/axios/axios)
-
-<code-caption>vue.js</code-caption>
-```html
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-```
-
-<code-caption>lodash.min.js</code-caption>
-```html
-<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
-```
-
-<code-caption>axios.min.js</code-caption>
-```html
-<script src="https://cdn.jsdelivr.net/npm/axios@0.17.1/dist/axios.min.js"></script>
-```
-
-
-### 学習用ファイルのひな形
-
-<page-info page="36"></page-info>
-
-<mark>**Chapter 7** までは、コードは次のファイルに固定して書きます。</mark>
-
-- HTML は「index.html」
-- JavaScript は「main.js」
-- CSS は「main.css」
-
-**Chapter 7** 以降は、コードのヘッダー部分にファイル名が記述されています。
-
-<code-caption>index.html</code-caption>
-```html
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <title>Vue.js App</title>
-  <link href="main.css" rel="stylesheet">
-</head>
-<body>
-  <div id="app">
-    <!-- この#appの内側にテンプレートを書き込んでいく -->
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-  <script src="main.js"></script>
-</body>
-</html>
-```
-
-<code-caption>main.js</code-caption>
-```js
-var app = new Vue({
-  el: '#app'
-})
-```
-
-<code-caption>main.css</code-caption>
-```css
-/* StyleSheet */
-```
-
-環境準備が不要で、手軽に書き始められる[各オンラインエディタのサービス](./#オンラインエディタを活用しよう)もご利用ください。
-
-::: tip
-
-ローカルファイルをそのままブラウザで読み込み「file://～」の URL で見ると、場合によってエラーが出ることがあります。
-なるべくローカルやリモートの Web サーバーを使用して「http://～」といった URL で見るようにしてください。
-[詳しくはこちら。](/guide/chapter2.html#外部からデータを取得する)
-
-:::
-
-## S05 Vue.js の基本機能
-
-<page-info page="38～42"></page-info>
-
-### テキストのバインディング
-
-<page-info page="38"></page-info>
-
-```html
-<p>{{ message }}</p>
-```
+在登录路由添加自定义 meta 字段，来记录该页面是否需要身份验证
 
 ```js
-var app = new Vue({
-  el: '#app',
-  data: {
-    message: 'Hello Vue.js!'
+//router.js
+const route = {
+  path: '/index',
+  name: 'index',
+  component: (resolve) => require(['./index.vue'], resolve),
+  meta: {
+    requiresAuth: true,
+  },
+}
+```
+
+设置路由拦截
+
+```js
+router.beforeEach((to, from, next) => {
+  // matched的数组中包含 $route 对象的检查元字段
+  // arr.some() 表示判断该数组是否有元素符合相应的条件, 返回布尔值
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    // 判断当前是否有登录的权限
+    if (!auth.loggedIn()) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath },
+      })
+    } else {
+      next()
+    }
+  } else {
+    next() // 确保一定要调用 next()
   }
 })
 ```
 
-<demo-block demo="guide-ch1-demo01"/>
-
-### 繰り返しの描画
-
-<page-info page="39"></page-info>
-
-```html
-<ol>
-  <li v-for="item in list">{{ item }}</li>
-</ol>
-```
+设置请求拦截
 
 ```js
-var app = new Vue({
-  el: '#app',
-  data: {
-    list: ['りんご', 'ばなな', 'いちご']
+// http request 拦截器
+axios.interceptors.request.use(
+  (config) => {
+    if (store.state.token) {
+      // 判断是否存在 token，在每个 http header 都加上 token
+      config.headers.Authorization = `token ${store.state.token}`
+    }
+    return config
+  },
+  (err) => {
+    return Promise.reject(err)
   }
-})
+)
+
+// http response 拦截器
+axios.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          // 返回 401 清除token信息并跳转到登录页面
+          store.commit(types.LOGOUT)
+          router.replace({
+            path: 'login',
+            query: { redirect: router.currentRoute.fullPath },
+          })
+      }
+    }
+    return Promise.reject(error.response.data) // 返回接口返回的错误信息
+  }
+)
 ```
 
-<demo-block demo="guide-ch1-demo02"/>
-
-### イベントの利用
-
-<page-info page="40"></page-info>
-
-```html
-<button v-on:click="handleClick">Click</button>
-```
+token 存储到 localStorage
 
 ```js
-var app = new Vue({
-  el: '#app',
-  methods: {
-    handleClick: function (event) {
-      alert(event.target) // [object HTMLButtonElement]
+// login.vue
+methods: {
+  login() {
+    if (this.token) {
+      // 存储在本地的localStograge中
+      this.$store.commit(types.LOGIN, this.token)
+      // 跳转至其他页面
+      let redirect = decodeURIComponent(this.$route.query.redirect || '/');
+      this.$router.push({
+        path: redirect
+      })
     }
   }
-})
-```
-
-<demo-block demo="guide-ch1-demo03"/>
-
-### フォーム入力との同期
-
-<page-info page="40"></page-info>
-
-```html
-<input v-model="message">
-<p>{{ message }}</p>
-```
-
-```js
-var app = new Vue({
-  el: '#app',
-  data: {
-    message: '初期メッセージ'
-  }
-})
-```
-
-<demo-block demo="guide-ch1-demo04"/>
-
-### 条件分岐
-
-<page-info page="41"></page-info>
-
-```html
-<button v-on:click="show=!show">切り替え</button>
-<p v-if="show">Hello Vue.js!</p>
-```
-
-```js
-var app = new Vue({
-  el: '#app',
-  data: {
-    show: true
-  }
-})
-```
-
-<demo-block demo="guide-ch1-demo05"/>
-
-### トランジション＆アニメーション
-
-<page-info page="42"></page-info>
-
-```html
-<button v-on:click="show=!show">切り替え</button>
-<transition>
-  <p v-if="show">Hello Vue.js!</p>
-</transition>
-```
-
-```js
-var app = new Vue({
-  el: '#app',
-  data: {
-    show: true
-  }
-})
-```
-
-```css
-.v-enter-active, .v-leave-active {
-  transition: opacity 1s;
-}
-/* opacity:0から1へのフェードイン＆フェードアウト */
-.v-enter, .v-leave-to {
-  opacity: 0;
 }
 ```
 
-<demo-block demo="guide-ch1-demo06"/>
+```js
+// store.js
+import Vuex from 'vuex'
+import Vue from 'vue'
+import * as types from './mutation-types.js'
 
-<!-- ★ 例題
-<exercise-block>
-  <template slot="q">
-    あれをこうしていいかんじにあれしよう
-  </template>
-  <div slot="a">
+Vue.use(Vuex)
+export default new Vuex.Store({
+  state: {
+    user: {},
+    token: null,
+    title: '',
+  },
+  mutations: {
+    // 为什么会把 token 存入 Vuex 中呢？
+    // 可以直接使用 localStorage 操作数据，但无法监听数据改变。
+    // 而 Vuex 是全局存储同时可监听数据状态的变更，在 Vuex 中封装的 localStorage 操作，
+    // 当 Vuex 数值发生变化时可以响应式地监听到该数据的变化。
 
-  ```js
-  new Vue()
-  ```
+    // 登录成功将, token 保存在 localStorage 中
+    [types.LOGIN]: (state, data) => {
+      localStorage.token = data
+      state.token = data
+    },
+    // 退出登录将 token 清空
+    [types.LOGOUT]: (state) => {
+      localStorage.removeItem('token')
+      state.token = null
+    },
+  },
+})
+```
 
-  </div>
-</exercise-block>
--->
+```js
+// mutation-types.js
+export const LOGIN = 'login'
+export const LOGOUT = 'logout'
+```
+
+> JavaScript 代码是运行在内存中的，代码运行时的所有变量，函数，也都是保存在内存中的。
+> 刷新页面，以前申请的内存被释放，重新加载脚本代码，变量重新赋值。
+> 所以这些数据要想储存就必须储存在外部，例如：Local Storage / Session Storage / IndexDB 等。  
+> 这些是浏览器提供的 API，让你可以将数据储存在硬盘上，做持久化储存。

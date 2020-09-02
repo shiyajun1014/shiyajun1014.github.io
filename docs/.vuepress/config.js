@@ -20,10 +20,9 @@ module.exports = {
     sidebar: {
       '/guide/': [
         '',
-        'preface.md',
-        'chapter1.md',
-        'chapter2.md',
-        'chapter3.md',
+        'chapter1.md', // Vue 使用 token 身份验证
+        'chapter2.md', // 第三方库使用
+        'chapter3.md', // Grid 布局
         'chapter4.md',
         'chapter5.md',
         'chapter6.md',

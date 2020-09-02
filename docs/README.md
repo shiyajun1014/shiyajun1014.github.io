@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: ''
+heroImage: '/images/nya-n.png'
 actionText: 随便看看 →
 actionLink: /guide/
 features:

@@ -9,9 +9,7 @@ import GoogleAds from './components/google-ads.vue'
 import GuideCh8S43SrcApp from './components/guide/ch8/s43/src/App.vue'
 import GuideCh8S44SrcApp from './components/guide/ch8/s44/src/App.vue'
 
-export default ({
-  Vue
-}) => {
+export default ({ Vue }) => {
   //Vue.component('Icon', Icon)
   Vue.component('code-caption', CodeCaption)
   Vue.component('page-info', PageInfo)
@@ -22,5 +20,4 @@ export default ({
   // 非同期コンポーネントが読み込み失敗する対策
   Vue.component('GuideCh8S43SrcApp', GuideCh8S43SrcApp)
   Vue.component('GuideCh8S44SrcApp', GuideCh8S44SrcApp)
-
 }

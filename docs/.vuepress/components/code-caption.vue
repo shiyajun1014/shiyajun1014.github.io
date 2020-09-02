@@ -1,6 +1,6 @@
 <template>
   <div class="code-caption">
-    <img src="/svg/code.svg" class="fa-icon"><span class="code-caption-label"><slot>設定されていません</slot></span>
+    <img src="/svg/code.svg" class="fa-icon" /><span class="code-caption-label"><slot>設定されていません</slot></span>
   </div>
 </template>
 
@@ -9,7 +9,6 @@
 //import 'vue-awesome/icons/regular/file-code'
 export default {}
 </script>
-
 
 <style>
 .code-caption {
