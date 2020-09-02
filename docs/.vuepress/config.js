@@ -5,13 +5,11 @@ module.exports = {
   locales: {
     '/': {
       lang: 'zh-CN',
-      title: '个人博客',
-      description: '站在人文与科技的十字路口'
-    }
+      title: '阿君记事',
+      description: '站在人文与科技的十字路口',
+    },
   },
-  head: [
-    ['link', { rel: 'icon', href: '/icon.png' }],
-  ],
+  head: [['link', { rel: 'icon', href: '/icon.png' }]],
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
@@ -31,34 +29,24 @@ module.exports = {
         'chapter6.md',
         'chapter7.md',
         'chapter8.md',
-        'chapter9.md'
+        'chapter9.md',
       ],
-      '/examples/': [
-        '',
-        'tab.md',
-        'modal.md',
-        'loading.md',
-        'delay-transition.md',
-        'text-animation.md',
-        'canvas.md',
-      ],
-      '/tutorials/': [
-        '',
-        'todo.md',
-        'firebase.md',
-        'netlify.md',
-      ]
+      '/examples/': ['', 'tab.md', 'modal.md', 'loading.md', 'delay-transition.md', 'text-animation.md', 'canvas.md'],
+      '/tutorials/': ['', 'todo.md', 'firebase.md', 'netlify.md'],
     },
     repo: 'redeememer/blog',
     repoLabel: 'GitHub',
     docsRepo: 'redeememer/blog',
     docsDir: 'docs',
-    editLinks: false
+    editLinks: false,
   },
-  chainWebpack: config => {
-    config.resolve.alias
-      .set('@docs', path.resolve(__dirname, '../'))
+  chainWebpack: (config) => {
+    config.resolve.alias.set('@docs', path.resolve(__dirname, '../'))
     config.module
-      .rule('crcode').pre().test(/\.md$/).use('crcode').loader(crcodeLoader)
-  }
+      .rule('crcode')
+      .pre()
+      .test(/\.md$/)
+      .use('crcode')
+      .loader(crcodeLoader)
+  },
 }
